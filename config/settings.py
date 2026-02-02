@@ -240,10 +240,9 @@ CORS_ALLOW_CREDENTIALS = True
 # CSRF & Cookie settings for API with HttpOnly JWT
 CSRF_TRUSTED_ORIGINS = [
     os.getenv('FRONTEND_URL'),
+    os.getenv('BACKEND_URL'),
 ]
 # Add ngrok URL if configured
-if os.getenv('BACKEND_URL'):
-    CSRF_TRUSTED_ORIGINS.append(os.getenv('BACKEND_URL'))
 
 # When using ngrok: Backend is HTTPS (ngrok), Frontend is HTTP (localhost)
 # Cookies REQUIRE: secure=True (HTTPS endpoint) and SameSite=None (cross-origin)
@@ -253,7 +252,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SAMESITE = 'None'
-CORS_EXPOSE_HEADERS = ['Set-Cookie']
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 
 if not DEBUG:
     # Seguridad adicional para producción
