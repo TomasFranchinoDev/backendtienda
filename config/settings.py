@@ -36,8 +36,8 @@ if not FIELD_ENCRYPTION_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-
+#ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ["*"]
 AUTH_USER_MODEL = 'users.User'
 
 LOGIN_URL = '/admin/login/'
@@ -226,21 +226,18 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,
 }
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 # Allow frontend URLs for CORS (includes ngrok for development)
 CORS_ALLOWED_ORIGINS = [
-    os.getenv('FRONTEND_URL'),
+    "https://tnr9tkbevq3i.share.zrok.io",
+    "https://web-production-ca959.up.railway.app",
 ]
-# Add ngrok URL if configured
-if os.getenv('BACKEND_URL'):
-    CORS_ALLOWED_ORIGINS.append(os.getenv('BACKEND_URL'))
-
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF & Cookie settings for API with HttpOnly JWT
 CSRF_TRUSTED_ORIGINS = [
-    os.getenv('FRONTEND_URL'),
-    os.getenv('BACKEND_URL'),
+    "https://tnr9tkbevq3i.share.zrok.io",
+    "https://web-production-ca959.up.railway.app",
 ]
 # Add ngrok URL if configured
 
