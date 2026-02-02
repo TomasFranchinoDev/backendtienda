@@ -41,7 +41,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Order.objects.filter(user=self.request.user).prefetch_related(
         'items__variant__product'  # Nested prefetch
     )
-    
+
     def get_serializer_class(self):
         if self.action == 'create':
             return OrderCreateSerializer
@@ -202,7 +202,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 order.status = 'paid'
                 order.payment_id = payment_id
                 order.save()
-                logger.info(f"Order #{order.id} synced as PAID (MP ID: {payment_id})")
                 return Response({
                     'status': 'paid',
                     'payment_id': payment_id,
@@ -225,9 +224,9 @@ class OrderViewSet(viewsets.ModelViewSet):
                 }, status=status.HTTP_200_OK)
                 
         except Exception as e:
-            logger.error(f"Error syncing payment: {str(e)}")
+            logger.error(f"Error syncing payment:", exc_info=True)
             return Response(
-                {'error': str(e)},
+                {'error': "Error interno del servidor"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -249,9 +248,6 @@ def mercadopago_webhook(request):
         # 2️⃣ Query params (MP los usa muchísimo)
         query_data = request.GET.dict()
 
-        logger.info(f"[WEBHOOK] Body: {body_data}")
-        logger.info(f"[WEBHOOK] Query: {query_data}")
-
         # 3️⃣ Extraer IDs correctamente
         topic = body_data.get("type") or query_data.get("type")
         resource = body_data.get("resource")
@@ -259,8 +255,6 @@ def mercadopago_webhook(request):
             body_data.get("data", {}).get("id")
             or query_data.get("data.id")
         )
-
-        logger.info(f"[WEBHOOK] Topic: {topic} | Data ID: {data_id}")
 
         if not data_id:
             logger.warning("[WEBHOOK] No data.id recibido")
@@ -274,4 +268,4 @@ def mercadopago_webhook(request):
 
     except Exception as e:
         logger.exception("[WEBHOOK] Error procesando webhook")
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": "Error interno del servidor"}, status=500)

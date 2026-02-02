@@ -232,8 +232,8 @@ CORS_ALLOWED_ORIGINS = [
     os.getenv('FRONTEND_URL'),
 ]
 # Add ngrok URL if configured
-if os.getenv('NGROK_URL'):
-    CORS_ALLOWED_ORIGINS.append(os.getenv('NGROK_URL'))
+if os.getenv('BACKEND_URL'):
+    CORS_ALLOWED_ORIGINS.append(os.getenv('BACKEND_URL'))
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -242,8 +242,8 @@ CSRF_TRUSTED_ORIGINS = [
     os.getenv('FRONTEND_URL'),
 ]
 # Add ngrok URL if configured
-if os.getenv('NGROK_URL'):
-    CSRF_TRUSTED_ORIGINS.append(os.getenv('NGROK_URL'))
+if os.getenv('BACKEND_URL'):
+    CSRF_TRUSTED_ORIGINS.append(os.getenv('BACKEND_URL'))
 
 # When using ngrok: Backend is HTTPS (ngrok), Frontend is HTTP (localhost)
 # Cookies REQUIRE: secure=True (HTTPS endpoint) and SameSite=None (cross-origin)

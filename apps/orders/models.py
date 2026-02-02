@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings # Para referenciar al AUTH_USER_MODEL
+from django.conf import settings
 
 class Order(models.Model):
     STATUS_CHOICES = (

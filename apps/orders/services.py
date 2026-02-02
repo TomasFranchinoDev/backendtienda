@@ -1,7 +1,6 @@
 import mercadopago
 import logging
 import os
-from decimal import Decimal
 from django.db import transaction
 from .models import Order
 
@@ -73,27 +72,21 @@ class MercadoPagoService:
             response = self.sdk.preference().create(preference_data)
 
             if response["status"] == 201:
-                logger.info(
-                    f"Mercado Pago preference created for Order #{order.id}: "
-                    f"{response['response']['id']}"
-                )
                 return {
                     "init_point": response["response"]["init_point"],
                     "preference_id": response["response"]["id"]
                 }
             else:
                 logger.error(
-                    f"Failed to create MP preference for Order #{order.id}: {response}"
+                    f"Failed to create MP preference for Order: Status {response['status']}"
                 )
-                error_msg = response.get('response', {}).get('message', 'Unknown error')
                 raise Exception(
-                    f"Mercado Pago returned status {response['status']}: {error_msg}"
+                    f"Mercado Pago returned status {response['status']}"
                 )
 
         except Exception as e:
-            error_msg = str(e)
-            logger.error(f"Error creating MP preference: {error_msg}")
-            raise Exception(f"No se pudo generar el link de pago: {error_msg}")
+            logger.error(f"Error creating MP preference", exc_info=True)
+            raise Exception(f"No se pudo generar el link de pago")
 
     def validate_payment_notification(self, data: dict):
         """
@@ -117,7 +110,7 @@ class MercadoPagoService:
             payment_info = self.sdk.payment().get(payment_id)
 
             if payment_info["status"] != 200:
-                logger.error(f"Failed to fetch MP payment {payment_id}: {payment_info}")
+                logger.error(f"Failed to fetch MP payment: Status {payment_info['status']}", exc_info=True)
                 return None
 
             payment_data = payment_info["response"]
@@ -127,23 +120,18 @@ class MercadoPagoService:
             amount = payment_data.get("transaction_amount")
             currency = payment_data.get("currency_id")
 
-            logger.info(
-                f"MP Payment #{payment_id} | status={status} | "
-                f"order_ref={external_reference} | amount={amount} {currency}"
-            )
-
             # 2️⃣ Validaciones estructurales
             if not external_reference:
-                logger.warning(f"MP Payment {payment_id} has no external_reference")
+                logger.warning(f"MP Payment has no external_reference")
                 return None
 
             if not amount:
-                logger.warning(f"MP Payment {payment_id} has no amount")
+                logger.warning(f"MP Payment has no amount")
                 return None
 
             # 3️⃣ Normalizar estado
             if status not in ["approved", "pending", "rejected", "cancelled", "refunded"]:
-                logger.warning(f"Unknown MP status {status} for payment {payment_id}")
+                logger.warning(f"Unknown MP status {status} for payment")
                 return None
 
             return {
@@ -155,7 +143,7 @@ class MercadoPagoService:
             }
 
         except Exception as e:
-            logger.error(f"Error validating MP notification: {str(e)}")
+            logger.error(f"Error validating MP notification:", exc_info=True)
             return None
 def process_mercadopago_webhook(topic: str, data_id: str):
     """
@@ -165,8 +153,6 @@ def process_mercadopago_webhook(topic: str, data_id: str):
     if not access_token:
         raise ValueError('MERCADOPAGO_ACCESS_TOKEN not configured in .env')
     sdk = mercadopago.SDK(access_token)
-
-    logger.info(f"[WEBHOOK][SERVICE] Procesando topic={topic}, id={data_id}")
 
     # 🟡 MERCHANT ORDER
     if topic in ("topic_merchant_order_wh", "merchant_order"):
@@ -190,12 +176,11 @@ def process_mercadopago_webhook(topic: str, data_id: str):
                     external_reference=external_reference
                 )
             except Order.DoesNotExist:
-                logger.warning(f"[WEBHOOK] Order no encontrada: {external_reference}")
+                logger.warning(f"[WEBHOOK] Order no encontrada: External Reference")
                 return
 
             # Idempotencia
             if order.status == "paid":
-                logger.info(f"[WEBHOOK] Order {order.id} ya pagada")
                 return
 
             # Buscar pago aprobado
@@ -208,14 +193,11 @@ def process_mercadopago_webhook(topic: str, data_id: str):
             )
 
             if not approved_payment:
-                logger.info("[WEBHOOK] Sin pagos aprobados aún")
                 return
 
             order.status = "paid"
             order.payment_id = approved_payment.get("id")
             order.save(update_fields=["status", "payment_id"])
-
-            logger.info(f"[WEBHOOK] Order {order.id} marcada como PAID")
 
     # 🟡 PAYMENT (opcional pero recomendado)
     elif topic == "payment":
@@ -241,5 +223,3 @@ def process_mercadopago_webhook(topic: str, data_id: str):
                 order.status = "paid"
                 order.payment_id = payment.get("id")
                 order.save(update_fields=["status", "payment_id"])
-
-                logger.info(f"[WEBHOOK] Order {order.id} pagada por payment")

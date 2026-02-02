@@ -89,7 +89,6 @@ class PasswordResetService:
                     expires_minutes=settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES
                 )
 
-                logger.info(f"Password reset initiated: {user.email}")
             else:
                 # No loguear el email no encontrado (previene information leakage)
                 logger.warning(f"Password reset request for unknown email")
@@ -98,7 +97,7 @@ class PasswordResetService:
             return (True, "Correo de recuperación enviado correctamente")
 
         except Exception as e:
-            logger.error(f"Error requesting password reset: {str(e)}", exc_info=True)
+            logger.error(f"Error requesting password reset:", exc_info=True)
             return (False, "Error al procesar la solicitud. Intenta más tarde.")
 
     @staticmethod
@@ -135,7 +134,7 @@ class PasswordResetService:
             return (token_obj, None)
 
         except Exception as e:
-            logger.error(f"Error validating reset token: {str(e)}", exc_info=True)
+            logger.error(f"Error validating reset token:", exc_info=True)
             return (None, "Error al validar el token")
 
     @staticmethod
@@ -184,7 +183,7 @@ class PasswordResetService:
             return (True, "Contraseña actualizada correctamente")
 
         except Exception as e:
-            logger.error(f"Error resetting password: {str(e)}", exc_info=True)
+            logger.error(f"Error resetting password:", exc_info=True)
             return (False, "Error al actualizar la contraseña. Intenta más tarde.")
 
 
@@ -237,11 +236,11 @@ def _send_password_reset_email(
             logger.info(f"Password reset email sent: {user_email}")
             return True
         else:
-            logger.error(f"Resend email failed: {response}")
+            logger.error(f"Resend email failed:")
             return False
 
     except Exception as e:
-        logger.error(f"Error sending password reset email: {str(e)}", exc_info=True)
+        logger.error(f"Error sending password reset email: ", exc_info=True)
         return False
 
 
