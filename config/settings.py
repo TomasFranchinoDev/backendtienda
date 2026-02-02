@@ -180,25 +180,25 @@ CLOUDINARY_STORAGE = {
 
 # Use Cloudinary if credentials are configured, otherwise use local storage
 # AGREGA ESTO EN SU LUGAR:
-DEBUG = os.getenv('DEBUG', 'False') != 'True'  # Usar Cloudinary solo en producción
-if not DEBUG and os.getenv('CLOUDINARY_CLOUD_NAME'):
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
-else:
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
+# Usar Cloudinary solo en producción
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+#else:
+ #   STORAGES = {
+ #       "default": {
+ #           "BACKEND": "django.core.files.storage.FileSystemStorage",
+ #       },
+ #       "staticfiles": {
+ #           "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+ #       },
+ #   }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
