@@ -203,6 +203,7 @@ STORAGES = {
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
@@ -233,14 +234,14 @@ SIMPLE_JWT = {
 CORS_ALLOW_ALL_ORIGINS = True
 # Allow frontend URLs for CORS (includes ngrok for development)
 CORS_ALLOWED_ORIGINS = [
-    "https://frontendtienda.vercel.app",
+    "https://mitiendawl.xyz",
     "https://web-production-ca959.up.railway.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF & Cookie settings for API with HttpOnly JWT
 CSRF_TRUSTED_ORIGINS = [
-    "https://frontendtienda.vercel.app",
+    "https://mitiendawl.xyz",
     "https://web-production-ca959.up.railway.app",
 ]
 # Add ngrok URL if configured
@@ -267,8 +268,14 @@ if not DEBUG:
 # ============================================================================
 RESEND_API_KEY = os.getenv('RESEND_API_KEY')
 EMAIL_FROM = os.getenv('EMAIL_FROM', 'Mi Tienda <no-reply@mitienda.com>')
-PASSWORD_RESET_URL = os.getenv('PASSWORD_RESET_URL', 'https://frontendtienda.vercel.app/reset-password')
+PASSWORD_RESET_URL = os.getenv('PASSWORD_RESET_URL', 'https://mitiendawl.xyz/reset-password')
 PASSWORD_RESET_TOKEN_EXPIRE_MINUTES = 30  # Token válido por 30 minutos
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.resend.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'resend' 
+EMAIL_HOST_PASSWORD = os.getenv('RESEND_API_KEY')
 
 # ============================================================================
 # JAZZMIN ADMIN CONFIGURATION
