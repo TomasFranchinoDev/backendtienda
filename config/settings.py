@@ -37,7 +37,7 @@ if not FIELD_ENCRYPTION_KEY:
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 #ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 AUTH_USER_MODEL = 'users.User'
 
 LOGIN_URL = '/admin/login/'
@@ -235,10 +235,11 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False #-----
 # Allow frontend URLs for CORS (includes ngrok for development)
 CORS_ALLOWED_ORIGINS = [
     "https://mitiendawl.xyz",
+    "https://www.mitiendawl.xyz",
     "https://web-production-ca959.up.railway.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
@@ -246,13 +247,16 @@ CORS_ALLOW_CREDENTIALS = True
 # CSRF & Cookie settings for API with HttpOnly JWT
 CSRF_TRUSTED_ORIGINS = [
     "https://mitiendawl.xyz",
+    "https://www.mitiendawl.xyz",
+    "https://api.mitiendawl.xyz",
     "https://web-production-ca959.up.railway.app",
 ]
 # Add ngrok URL if configured
 
 # When using ngrok: Backend is HTTPS (ngrok), Frontend is HTTP (localhost)
 # Cookies REQUIRE: secure=True (HTTPS endpoint) and SameSite=None (cross-origin)
-SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_DOMAIN = ".mitiendawl.xyz" #------ 
+CSRF_COOKIE_DOMAIN = ".mitiendawl.xyz" #---- no estaba
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
