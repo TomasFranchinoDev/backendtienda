@@ -162,7 +162,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 # ============================================================================
 # MEDIA FILES & CLOUDINARY CONFIGURATION
 # ============================================================================
@@ -187,7 +187,11 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        # ANTES (Crashea si falta un archivo):
+        # "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        
+        # AHORA (Más seguro para evitar Error 500):
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 #else:
