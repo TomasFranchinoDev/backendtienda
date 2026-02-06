@@ -10,14 +10,10 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'image_url', 'parent_id', 'children']
 
     def get_children(self, obj):
-        try:
-        # Use prefetched data
-            children = obj._prefetched_objects_cache.get('children', [])
-            if children:
-                return CategorySerializer(children, many=True).data
+        children = obj.children.all()
+        if not children:
             return []
-        except AttributeError:
-            return []
+        return CategorySerializer(children, many=True, context=self.context).data
 
     def get_parent_id(self, obj):
         return obj.parent_id
