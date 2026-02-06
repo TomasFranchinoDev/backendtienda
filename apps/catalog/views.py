@@ -12,7 +12,7 @@ from .serializers import (
 from .filters import ProductFilter
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Category.objects.filter(parent__isnull=True).prefetch_related('children')
+    queryset = Category.objects.all().prefetch_related('children')
     serializer_class = CategorySerializer
     lookup_field = 'slug' # Para buscar por /categories/ropa-hombre/
     pagination_class = None

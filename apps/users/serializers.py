@@ -36,10 +36,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         try:
             validate_non_disposable_email(value)
         except ValidationError as e:
-            raise serializers.ValidationError(str(e.message))
+            raise serializers.ValidationError({"detail": "No es posible registrar con este email"})
         
         if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Este email ya está registrado")
+            raise serializers.ValidationError({"detail": "No es posible registrar con este email"})
         return value
 
 
@@ -75,7 +75,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
             return data
 
-        raise serializers.ValidationError("Email o contraseña incorrectos")
+        raise serializers.ValidationError({"detail": "Email o contraseña incorrectos"})
 
 
 class UserSerializer(serializers.ModelSerializer):
