@@ -2,8 +2,8 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Min
-from .models import Product, Category
+from django.db.models import OuterRef, Subquery, DecimalField
+from .models import Product, Category, ProductVariant
 from .serializers import (
     ProductListSerializer, 
     ProductDetailSerializer, 
@@ -31,18 +31,21 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     # Configuración de filtros
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = ProductFilter
-    search_fields = ['name', 'description', 'variants__sku']
+    search_fields = ['name', 'description']
     ordering_fields = ['price', 'name', 'created_at']
     ordering = ['-created_at']
 
     def get_queryset(self):
-        # Optimizamos queries con prefetch_related
-        # Anotamos el precio mínimo de variantes para permitir ordenamiento por precio
+        # Subquery: obtiene el precio mínimo de cada producto sin JOINs ni duplicados
+        min_price_subquery = ProductVariant.objects.filter(
+            product=OuterRef('pk')
+        ).order_by('price').values('price')[:1]
+
         return Product.objects.filter(
             is_active=True
         ).annotate(
-            price=Min('variants__price')
-        ).prefetch_related('images', 'variants').distinct()
+            price=Subquery(min_price_subquery, output_field=DecimalField())
+        ).select_related('category').prefetch_related('images', 'variants')
     
     def filter_queryset(self, queryset):
         """Sobrescribir para forzar filtro is_active=True en todos los casos"""

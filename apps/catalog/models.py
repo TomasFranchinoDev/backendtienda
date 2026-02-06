@@ -16,6 +16,9 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "Categories"
+        indexes = [
+            models.Index(fields=['parent'], name='idx_category_parent'),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -59,6 +62,13 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['is_active', 'created_at'], name='idx_product_active_created'),
+            models.Index(fields=['is_active', 'category'], name='idx_product_active_category'),
+            models.Index(fields=['is_active', 'is_featured'], name='idx_product_active_featured'),
+        ]
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -82,6 +92,11 @@ class ProductVariant(models.Model):
     height = models.DecimalField(max_digits=5, decimal_places=1, default=5.0, help_text="Alto en CM")
 
     is_default = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['product', 'price'], name='idx_variant_product_price'),
+        ]
 
     def __str__(self):
         return f"{self.product.name} ({self.sku})"

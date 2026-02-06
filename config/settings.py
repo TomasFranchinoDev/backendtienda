@@ -110,7 +110,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     "default": dj_database_url.config(
-        conn_max_age=0, #Cambiar al llevar a produccion
+        conn_max_age=600, # Reusar conexiones por 10 minutos
         ssl_require=True,
     )
 }
